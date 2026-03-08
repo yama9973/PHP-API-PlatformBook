@@ -1,0 +1,42 @@
+version: "3"
+
+tasks:
+  # docker compose exec php のショートカット
+  # 使い方: task dc:php -- composer install
+  dc:php:
+    cmds:
+      - docker compose exec php {{.CLI_ARGS}}
+
+  # composer コマンド
+  # 使い方: task dc:composer -- require api
+  dc:composer:
+    cmds:
+      - docker compose exec -w /app/api-platform-book-app php composer {{.CLI_ARGS}}
+
+  # symfony コマンド
+  # 使い方: task dc:sf -- new /tmp/myapp
+  dc:sf:
+    cmds:
+      - docker compose exec php symfony {{.CLI_ARGS}}
+
+  # Symfony console コマンド
+  # 使い方: task dc:console -- doctrine:database:create
+  dc:console:
+    cmds:
+      - docker compose exec -w /app/api-platform-book-app php bin/console {{.CLI_ARGS}}
+
+  # Symfony ローカルWebサーバーをデーモンで起動
+  dc:serve:
+    cmds:
+      - docker compose exec php symfony server:start --no-tls --daemon
+
+  # Symfony ローカルWebサーバーを停止
+  dc:stop:
+    cmds:
+      - docker compose exec php symfony server:stop
+
+
+  # コンテナ内でbashを起動
+  dc:shell:
+    cmds:
+      - docker compose exec php bash
