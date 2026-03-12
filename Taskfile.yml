@@ -1,6 +1,22 @@
 version: "3"
 
 tasks:
+
+  # docker 起動
+  dc:cd:
+    cmds:
+      - docker compose up -d
+
+  # docker 停止
+  dc:down:
+    cmds:
+      - docker compose down
+
+  # log 確認
+  dc:logs:
+    cmds:
+      - docker compose logs -f php
+
   # docker compose exec php のショートカット
   # 使い方: task dc:php -- composer install
   dc:php:
