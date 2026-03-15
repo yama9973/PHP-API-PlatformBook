@@ -4,10 +4,14 @@ namespace App\ApiResource;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\OpenApi\Model\Operation;
 use App\State\TagCollectionProvider;
 
 #[ApiResource]
-#[GetCollection(provider: TagCollectionProvider::class)]
+#[GetCollection(
+        openapi: new Operation(summary: '使用可能なタグの一覧を取得する。'),
+        provider: TagCollectionProvider::class,
+)]
 class Tag
 {
     public const array ALLOWED_TAGS = [
@@ -26,6 +30,5 @@ class Tag
     public function __construct(
         public int $id,
         public string $label,
-    ) {
-    }
+    ) {}
 }
