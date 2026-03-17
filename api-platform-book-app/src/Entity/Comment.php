@@ -1,14 +1,19 @@
 <?php
 
+/** @noinspection PhpNamedArgumentsWithChangedOrderInspection */
+
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
 use ApiPlatform\OpenApi\Model\Parameter;
+use ApiPlatform\State\CreateProvider;
 use App\Repository\CommentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -24,14 +29,17 @@ class Comment
     #[Groups(['article:read:item'])]
     private ?int $id = null;
 
+    /**
+     * #required-on-read
+     */
     #[ORM\ManyToOne(inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull]
+    #[Groups(['comment:write:patch'])]
     private ?Article $article = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
-    #[Groups(['article:read:item'])]
+    #[Groups(['comment:write', 'article:read:item'])]
     private ?string $content = null;
 
     public function getId(): ?int
@@ -66,8 +74,52 @@ class Comment
     public static function apiResource(): array
     {
         return [
-            new GetCollection(openapi: new Operation(summary: 'コメントの一覧を取得する。')),
-            new Post(openapi: new Operation(summary: 'コメントを新規作成する。')),
+            new ApiResource(
+                denormalizationContext: ['groups' => ['comment:write']],
+            ),
+            new GetCollection(
+                uriTemplate: '/articles/{articleId}/comments',
+                uriVariables: [
+                    'articleId' => new Link(
+                        fromClass: Article::class,
+                        toProperty: 'article',
+                    ),
+                ],
+                openapi: new Operation(
+                    summary: '指定したブログ記事に対するコメントの一覧を取得する。',
+                    parameters: [
+                        new Parameter(
+                            name: 'articleId',
+                            in: 'path',
+                            description: 'ブログ記事ID',
+                            required: true,
+                            schema: ['type' => 'integer'],
+                        ),
+                    ],
+                ),
+            ),
+            new Post(
+                uriTemplate: '/articles/{articleId}/comments',
+                uriVariables: [
+                    'articleId' => new Link(
+                        fromClass: Article::class,
+                        toProperty: 'article',
+                    ),
+                ],
+                openapi: new Operation(
+                    summary: '指定したブログ記事に対するコメントを新規作成する。',
+                    parameters: [
+                        new Parameter(
+                            name: 'articleId',
+                            in: 'path',
+                            description: 'ブログ記事ID',
+                            required: true,
+                            schema: ['type' => 'integer'],
+                        ),
+                    ],
+                ),
+                provider: CreateProvider::class,
+            ),
             new Get(
                 openapi: new Operation(
                     summary: '指定したコメントの詳細を取得する。',
@@ -109,6 +161,7 @@ class Comment
                         ),
                     ],
                 ),
+                denormalizationContext: ['groups' => ['comment:write', 'comment:write:patch']],
             ),
         ];
     }
