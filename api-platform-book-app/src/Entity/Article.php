@@ -92,6 +92,9 @@ class Article
     )]
     private ?\DateTime $date = null;
 
+    #[ORM\ManyToOne]
+    private ?MediaObject $image = null;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -318,5 +321,17 @@ class Article
                 deserialize: false,
             ),
         ];
+    }
+
+    public function getImage(): ?MediaObject
+    {
+        return $this->image;
+    }
+
+    public function setImage(?MediaObject $image): static
+    {
+        $this->image = $image;
+
+        return $this;
     }
 }
