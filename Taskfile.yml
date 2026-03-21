@@ -1,5 +1,19 @@
 version: "3"
 
+# ===== タスク一覧 =====
+# dc:up          docker 起動
+# dc:down        docker 停止
+# dc:logs        log 確認
+# dc:php         docker compose exec php のショートカット
+# dc:shell       コンテナ内でbashを起動
+# sy:comp        composer コマンド
+# sy:sf          symfony コマンド
+# sy:cons        Symfony console コマンド
+# sy:serve       Symfony ローカルWebサーバーをデーモンで起動
+# sy:stop        Symfony ローカルWebサーバーを停止
+# sy:mgr         Doctrine Migrations を作成
+# sy:mgr:n       Doctrine Migrations を実行
+
 includes:
   dc:
     taskfile: ./taskfiles/Docker.yml
