@@ -1,0 +1,28 @@
+version: "3"
+
+tasks:
+  up:
+    desc: docker 起動
+    cmds:
+      - docker compose up -d
+
+  down:
+    desc: docker 停止
+    cmds:
+      - docker compose down
+
+  logs:
+    desc: log 確認
+    cmds:
+      - docker compose logs -f php
+
+  # 使い方: task dc:php -- composer install
+  php:
+    desc: docker compose exec php のショートカット
+    cmds:
+      - docker compose exec php {{.CLI_ARGS}}
+
+  shell:
+    desc: コンテナ内でbashを起動
+    cmds:
+      - docker compose exec php bash

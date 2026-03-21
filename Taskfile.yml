@@ -1,66 +1,7 @@
 version: "3"
 
-tasks:
-  dc:cd:
-    desc: docker 起動
-    cmds:
-      - docker compose up -d
-
-  dc:down:
-    desc: docker 停止
-    cmds:
-      - docker compose down
-
-  dc:logs:
-    desc: log 確認
-    cmds:
-      - docker compose logs -f php
-
-  # 使い方: task dc:php -- composer install
-  dc:php:
-    desc: docker compose exec php のショートカット
-    cmds:
-      - docker compose exec php {{.CLI_ARGS}}
-
-  # 使い方: task dc:composer -- require api
-  sy:comp:
-    desc: composer コマンド
-    cmds:
-      - docker compose exec -w /app/api-platform-book-app php composer {{.CLI_ARGS}}
-
-  # 使い方: task dc:sf -- new /tmp/myapp
-  sy:sf:
-    desc: symfony コマンド
-    cmds:
-      - docker compose exec php symfony {{.CLI_ARGS}}
-
-  # 使い方: task dc:console -- doctrine:database:create
-  sy:cons:
-    desc: Symfony console コマンド
-    cmds:
-      - docker compose exec -w /app/api-platform-book-app php bin/console {{.CLI_ARGS}}
-
-  dc:shell:
-    desc: コンテナ内でbashを起動
-    cmds:
-      - docker compose exec php bash
-
-  sy:mgr:
-    desc: Doctrine Migrations を作成
-    cmds:
-      - docker compose exec php php bin/console doctrine:migrations:diff
-
-  sy:mgr:n:
-    desc: Doctrine Migrations を実行
-    cmds:
-      - docker compose exec php php bin/console doctrine:migrations:migrate -n
-
-  dc:serve:
-    desc: Symfony ローカルWebサーバーをデーモンで起動
-    cmds:
-      - docker compose exec php symfony server:start --no-tls --daemon
-
-  dc:stop:
-    desc: Symfony ローカルWebサーバーを停止
-    cmds:
-      - docker compose exec php symfony server:stop
+includes:
+  dc:
+    taskfile: ./taskfiles/Docker.yml
+  sy:
+    taskfile: ./taskfiles/Symfony.yml

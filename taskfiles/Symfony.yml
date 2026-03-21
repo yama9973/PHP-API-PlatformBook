@@ -1,0 +1,40 @@
+version: "3"
+
+tasks:
+  # 使い方: task sy:comp -- require api
+  comp:
+    desc: composer コマンド
+    cmds:
+      - docker compose exec -w /app/api-platform-book-app php composer {{.CLI_ARGS}}
+
+  # 使い方: task sy:sf -- new /tmp/myapp
+  sf:
+    desc: symfony コマンド
+    cmds:
+      - docker compose exec php symfony {{.CLI_ARGS}}
+
+  # 使い方: task sy:cons -- doctrine:database:create
+  cons:
+    desc: Symfony console コマンド
+    cmds:
+      - docker compose exec -w /app/api-platform-book-app php bin/console {{.CLI_ARGS}}
+
+  serve:
+    desc: Symfony ローカルWebサーバーをデーモンで起動
+    cmds:
+      - docker compose exec php symfony server:start --no-tls --daemon
+
+  stop:
+    desc: Symfony ローカルWebサーバーを停止
+    cmds:
+      - docker compose exec php symfony server:stop
+
+  mgr:
+    desc: Doctrine Migrations を作成
+    cmds:
+      - docker compose exec php php bin/console doctrine:migrations:diff
+
+  mgr:n:
+    desc: Doctrine Migrations を実行
+    cmds:
+      - docker compose exec php php bin/console doctrine:migrations:migrate -n
