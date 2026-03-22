@@ -4,7 +4,13 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
+use ApiPlatform\Doctrine\Orm\Filter\NumericFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -17,6 +23,7 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation;
 use ApiPlatform\OpenApi\Model\Parameter;
 use App\ApiResource\Tag;
+use App\Filter\Article\CrossoverSearchFilter;
 use App\Repository\ArticleRepository;
 use App\State\ArticlePublishProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -29,7 +36,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[ApiFilter(SearchFilter::class, properties: ['title' => 'partial', 'comments.content' => 'partial'])]
+#[ApiFilter(DateFilter::class, properties: ['date'])]
+#[ApiFilter(BooleanFilter::class, properties: ['published'])]
+#[ApiFilter(NumericFilter::class, properties: ['id'])]
 #[ApiFilter(RangeFilter::class, properties: ['id'])]
+#[ApiFilter(ExistsFilter::class, properties: ['content', 'comments'])]
+#[ApiFilter(OrderFilter::class, properties: ['id', 'date'])]
+#[ApiFilter(CrossoverSearchFilter::class)]
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
 class Article
 {
@@ -251,14 +265,24 @@ class Article
         return $this;
     }
 
+    public function getImage(): ?MediaObject
+    {
+        return $this->image;
+    }
+
+    public function setImage(?MediaObject $image): static
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
     public static function apiResource(): array
     {
         return [
             new ApiResource(
                 normalizationContext: ['groups' => ['article:read:item']],
                 denormalizationContext: ['groups' => ['article:write']],
-                order: ['id' => 'ASC'],
-                paginationViaCursor:[['field' => 'id', 'direction' => 'asc']],
             ),
             new GetCollection(
                 openapi: new Operation(summary: 'ブログ記事の一覧を取得する。'),
@@ -327,17 +351,5 @@ class Article
                 deserialize: false,
             ),
         ];
-    }
-
-    public function getImage(): ?MediaObject
-    {
-        return $this->image;
-    }
-
-    public function setImage(?MediaObject $image): static
-    {
-        $this->image = $image;
-
-        return $this;
     }
 }
